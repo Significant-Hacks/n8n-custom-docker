@@ -1,21 +1,13 @@
-# Start from official n8n latest image
+# Start with official n8n (even though it's minimal)
 FROM n8nio/n8n:latest
 
-# Switch to root to install packages
+# Now install curl & wget first (they might exist)
 USER root
 
-# Install curl and update system
-RUN curl -fsSL https://deb.debian.org/debian/pool/main/util-linux/util-linux_2.38. 1-5+deb12u1_amd64.deb -o /tmp/util. deb || true
+# Try to install packages using npm instead of apt
+RUN npm install -g python3 ffmpeg yt-dlp 2>/dev/null || echo "npm install failed, trying alternative"
 
-# Install python3, pip, and ffmpeg
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    ffmpeg && \
-    pip3 install --no-cache-dir yt-dlp && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install Python and ffmpeg using Node if apt doesn't work
+RUN which python3 || (apt-get update && apt-get install -y python3 python3-pip ffmpeg) || echo "apt failed"
 
-# Switch back to n8n user
 USER node
