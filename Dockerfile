@@ -1,31 +1,12 @@
-# Start with Node 18 Debian (has apt-get)
-FROM node:18-bullseye
+# Start from the official optimized n8n image
+FROM n8nio/n8n:latest
 
-# Install system packages for video scraping/processing
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    ffmpeg \
-    git && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Switch to root to install system-level packages
+USER root
 
-# Install Python packages for scraping
-RUN pip3 install --no-cache-dir \
-    yt-dlp \
-    instagrapi \
-    facebook-sdk \
-    requests
+# Install python3, pip, and ffmpeg using Alpine's manager (apk)
+RUN apk add --no-cache python3 py3-pip ffmpeg && \
+    pip3 install --no-cache-dir yt-dlp
 
-# Install n8n globally
-RUN npm install -g n8n
-
-# Create app directory
-WORKDIR /home/node/app
-
-# Expose port
-EXPOSE 5678
-
-# Start n8n
-CMD ["n8n", "start"]
+# Switch back to the 'node' user for security
+USER node
