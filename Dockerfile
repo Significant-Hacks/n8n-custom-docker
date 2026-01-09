@@ -1,5 +1,5 @@
 # Start from official n8n latest image
-FROM n8nio/n8n::1.64.0-debian-debian
+FROM n8nio/n8n:1.64.0-debian-debian
 
 # Switch to root to install packages
 USER root
