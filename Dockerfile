@@ -5,7 +5,7 @@ FROM n8nio/n8n:latest
 USER root
 
 # Install python3, pip, and ffmpeg on Alpine
-apt-get update && apt-get install -y python3-pip ffmpeg \
+RUN apt-get update && apt-get install -y python3-pip ffmpeg \
     && pip3 install --no-cache-dir yt-dlp
 
 
