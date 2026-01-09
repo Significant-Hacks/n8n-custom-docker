@@ -1,13 +1,31 @@
-# Start with official n8n (even though it's minimal)
-FROM n8nio/n8n:latest
+# Start with Node 18 Debian (has apt-get)
+FROM node:18-bullseye
 
-# Now install curl & wget first (they might exist)
-USER root
+# Install system packages for video scraping/processing
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    ffmpeg \
+    git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Try to install packages using npm instead of apt
-RUN npm install -g python3 ffmpeg yt-dlp 2>/dev/null || echo "npm install failed, trying alternative"
+# Install Python packages for scraping
+RUN pip3 install --no-cache-dir \
+    yt-dlp \
+    instagrapi \
+    facebook-sdk \
+    requests
 
-# Install Python and ffmpeg using Node if apt doesn't work
-RUN which python3 || (apt-get update && apt-get install -y python3 python3-pip ffmpeg) || echo "apt failed"
+# Install n8n globally
+RUN npm install -g n8n
 
-USER node
+# Create app directory
+WORKDIR /home/node/app
+
+# Expose port
+EXPOSE 5678
+
+# Start n8n
+CMD ["n8n", "start"]
