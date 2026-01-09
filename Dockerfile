@@ -1,12 +1,31 @@
-# Start from official n8n latest image
-FROM n8nio/n8n:latest
+FROM node:18-alpine
 
-# Switch to root to install packages
-USER root
+# Install necessary packages using apk
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev \
+    git
 
-# Install python3, pip, and ffmpeg on Alpine
-RUN apt update && apt install -y python3-pip ffmpeg \ && pip3 install --no-cache-dir yt-dlp
+# Set working directory
+WORKDIR /home/node/app
 
+# Copy package files
+COPY package*.json ./
 
-# Switch back to n8n user
-USER node
+# Install Node dependencies
+RUN npm ci --only=production
+
+# Copy application files
+COPY . .
+
+# Expose port
+EXPOSE 5678
+
+# Start the application
+CMD ["node", "dist/index.js"]
