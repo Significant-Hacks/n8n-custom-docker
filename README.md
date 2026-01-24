@@ -197,7 +197,8 @@ pip install --upgrade pip
 
 
 ## 📂 Repository Structure
-```n8n-custom-docker/
+```
+n8n-custom-docker/
 ├── Dockerfile                  # Custom image definition (n8n + yt-dlp + ffmpeg)
 ├── digest.txt                   # Stores last known n8n Docker digest
 └── .github/
