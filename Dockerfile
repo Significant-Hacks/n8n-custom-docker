@@ -14,11 +14,13 @@ RUN ./sbin/apk.static --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/m
 RUN python3 -m venv /home/node/venv \
     && . /home/node/venv/bin/activate \
     && pip install --upgrade pip \
-    && pip install yt-dlp 
+    && pip install yt-dlp
 
 # Step 4: Fix permissions for node user
 RUN chown -R node:node /home/node/venv
 
 USER node
 
+# Restore the original entrypoint with Tini
+ENTRYPOINT ["/tini", "--"]
 CMD ["n8n"]
