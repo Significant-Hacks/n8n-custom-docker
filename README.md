@@ -84,7 +84,7 @@ This repository provides a custom Docker image for [n8n](https://n8n.io), extend
 ---
 
 
-## How to install python and the pip
+## How I managed to install python/pip & other PKGs
 ---
 
 ### Step 1: Tried installing Python via npm (failed)
@@ -189,8 +189,9 @@ pip install --upgrade pip
 
 ---
 
-✅ At this point, Python, pip, ffmpeg, and yt-dlp are all installed and usable inside the container.  
-👉 Use `/home/node/venv/bin/yt-dlp` and `ffmpeg` in n8n Execute Command nodes to integrate them into workflows.  
+✅ At this point, Python, pip, ffmpeg, and yt-dlp are all installed and usable inside the container. With this insight, i recoded the whole process to the dcoker file so that everythiing be handled from the image building. And with trial and error it worked fine. I itested this on [NORTHFLANK VPS](https://app.northflank.com/) provider on freetier.
+
+👉 Use `/home/node/venv/bin/yt-dlp` and `ffmpeg` in n8n Execute Command nodes to integrate them into workflows.
 
 ---
 
