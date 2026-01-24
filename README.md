@@ -83,6 +83,118 @@ This repository provides a custom Docker image for [n8n](https://n8n.io), extend
 
 ---
 
+
+## How to install python and the pip
+---
+
+### Step 1: Tried installing Python via npm (failed)
+```sh
+npm install python
+python --version
+# Result: ash: python: not found
+```
+
+---
+
+### Step 2: Tried using apk directly (failed)
+```sh
+apk add --no-cache python3 py3-pip
+# Result: ash: apk: not found
+```
+
+---
+
+### Step 3: Checked available tools
+```sh
+tar --version
+# tar (busybox) 1.37.0
+```
+
+---
+
+### Step 4: Tried old apk-tools-static link (failed)
+```sh
+wget http://dl-cdn.alpinelinux.org/alpine/v3.5/main/x86_64/apk-tools-static-2.6.8-r1.apk
+# Result: HTTP/1.1 404 Not Found
+```
+
+---
+
+### Step 5: Downloaded latest apk-tools-static (success)
+```sh
+wget https://dl-cdn.alpinelinux.org/alpine/v3.21/main/x86_64/apk-tools-static-2.14.6-r3.apk
+```
+
+---
+
+### Step 6: Unpacked the apk-tools-static package
+```sh
+tar -xvf apk-tools-static-2.14.6-r3.apk
+# Creates sbin/apk.static
+```
+
+---
+
+### Step 7: Installed Python3, pip, and ffmpeg using apk.static
+```sh
+./sbin/apk.static --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main/ --allow-untrusted add python3 py3-pip ffmpeg
+```
+
+---
+
+### Step 8: Verified installations
+```sh
+python3 --version
+# Python 3.12.12
+
+pip3 --version
+# pip 25.1.1
+
+ffmpeg -version
+# ffmpeg 6.1.2
+```
+
+---
+
+### Step 9: Tried pip install yt-dlp (failed due to PEP 668 restriction)
+```sh
+pip3 install yt-dlp
+# error: externally-managed-environment
+```
+
+---
+
+### Step 10: Created a Python virtual environment (venv)
+```sh
+python3 -m venv /home/node/venv
+. /home/node/venv/bin/activate
+```
+
+---
+
+### Step 11: Installed yt-dlp inside venv (success)
+```sh
+pip install yt-dlp
+yt-dlp --version
+# yt-dlp 2025.12.8
+```
+
+---
+
+### Step 12: Confirmed pip works inside venv
+```sh
+pip install --upgrade pip
+# Pip upgraded successfully inside venv
+```
+
+---
+
+✅ At this point, Python, pip, ffmpeg, and yt-dlp are all installed and usable inside the container.  
+👉 Use `/home/node/venv/bin/yt-dlp` and `ffmpeg` in n8n Execute Command nodes to integrate them into workflows.  
+
+---
+
+
 ## 📂 Repository Structure
 ```n8n-custom-docker/
 ├── Dockerfile                  # Custom image definition (n8n + yt-dlp + ffmpeg)
