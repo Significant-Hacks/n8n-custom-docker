@@ -1,6 +1,6 @@
 # 📂 Project Structure
-```n8n-redirector-netlify/          # Root of your Netlify project
-│
+```
+n8n-redirector-netlify/          # Root of your Netlify project
 ├── netlify.toml                 # Netlify config (routes, build settings)
 ├── _redirects                   # Optional static redirects (fallbacks)
 ├── package.json                 # Dependencies (pg, netlify functions SDK, etc.)
