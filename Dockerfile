@@ -1,15 +1,12 @@
-# Use the absolute latest 2.x version (Debian-based)
-FROM n8nio/n8n:2.3.2
+# Start from official n8n image
+FROM n8nio/n8n:latest
 
+# Switch to root to install packages
 USER root
 
-# 1. Debian uses apt-get
-# 2. We need python3-pip and ffmpeg
-# 3. We use --break-system-packages because modern Debian prevents global pip installs by default
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3 python3-pip ffmpeg && \
-    pip3 install --no-cache-dir yt-dlp --break-system-packages && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install FFmpeg, Python3, pip, and yt-dlp
+RUN apk add --no-cache ffmpeg python3 py3-pip \
+    && pip3 install --no-cache-dir yt-dlp
 
+# Switch back to node user for n8n runtime
 USER node
