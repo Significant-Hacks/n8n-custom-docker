@@ -1,6 +1,2 @@
-FROM n8nio/n8n:latest-alpine
-
-USER root
-RUN apk add --no-cache ffmpeg python3 py3-pip \
-    && pip3 install --no-cache-dir yt-dlp
-USER node
+# Use the latest official n8n image
+FROM n8nio/n8n:latest
