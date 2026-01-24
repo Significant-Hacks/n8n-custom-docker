@@ -10,7 +10,7 @@ RUN wget https://dl-cdn.alpinelinux.org/alpine/v3.21/main/x86_64/apk-tools-stati
 RUN ./sbin/apk.static --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main/ \
     --allow-untrusted add python3 py3-pip ffmpeg
 
-# Step 3: Create Python virtual environment
+# Step 3: Create Python virtual environment and install yt-dlp
 RUN python3 -m venv /home/node/venv \
     && . /home/node/venv/bin/activate \
     && pip install --upgrade pip \
@@ -19,8 +19,11 @@ RUN python3 -m venv /home/node/venv \
 # Step 4: Fix permissions for node user
 RUN chown -R node:node /home/node/venv
 
+# Reset working directory to what n8n expects
+WORKDIR /home/node
+
+# Switch back to node user
 USER node
 
-# Restore the original entrypoint with Tini
-ENTRYPOINT ["/tini", "--"]
-CMD ["n8n"]
+# Do NOT override entrypoint; inherit from base image
+# The base image already defines: ENTRYPOINT ["/tini", "--"] CMD ["n8n"]
