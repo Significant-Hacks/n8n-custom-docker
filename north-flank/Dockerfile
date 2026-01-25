@@ -19,17 +19,19 @@ RUN python3 -m venv /home/node/venv \
 # Step 4: Fix permissions for node user
 RUN chown -R node:node /home/node/venv
 
-# Step 5: Define instID at build time (editable here)
-# Change 'autoid' to any preferred identifier before build
-ENV instID=autoid
-
-# Step 6: Build global WEBHOOK_URL from instID
-ENV WEBHOOK_URL=https://wonderful-froyo-fd4695.netlify.app/${instID}/
-
-# Step 7: Create entrypoint script (no writes to /etc/environment)
+# Step 5: Create entrypoint script with conditional instID assignment
 RUN printf '#!/bin/sh\n\
 set -e\n\
-echo "Container starting with instID=$instID"\n\
+# If WEBHOOK_URL contains ${instID}, generate a UUID\n\
+if echo "$WEBHOOK_URL" | grep -q "\\${instID}"; then\n\
+  instID=$(uuidgen)\n\
+  WEBHOOK_URL=$(echo "$WEBHOOK_URL" | sed "s/\\${instID}/$instID/")\n\
+else\n\
+  # Otherwise, extract the last path segment as instID\n\
+  instID=$(basename "$WEBHOOK_URL")\n\
+fi\n\
+export instID WEBHOOK_URL\n\
+echo "Container started with instID=$instID"\n\
 echo "WEBHOOK_URL=$WEBHOOK_URL"\n\
 exec tini -s -- "$@"\n' \
     > /usr/local/bin/docker-entrypoint.sh \
@@ -44,6 +46,9 @@ ENV N8N_RUNNERS_MODE=external
 ENV N8N_RUNNERS_AUTH_TOKEN=changeme
 ENV N8N_RUNNERS=${NF_HOSTS}
 ENV TINI_SUBREAPER=1
+
+# Default WEBHOOK_URL template (uses ${instID} by default)
+ENV WEBHOOK_URL=https://wonderful-froyo-fd4695.netlify.app/${instID}/
 
 EXPOSE 5678
 
