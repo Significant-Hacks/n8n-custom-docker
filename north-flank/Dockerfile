@@ -6,13 +6,12 @@ USER root
 RUN wget https://dl-cdn.alpinelinux.org/alpine/v3.21/main/x86_64/apk-tools-static-2.14.6-r3.apk \
     && tar -xvf apk-tools-static-2.14.6-r3.apk
 
-# Step 2: Use apk.static to install python3, pip, ffmpeg, bash, util-linux (for uuidgen)
+# Step 2: Use apk.static to install python3, pip, ffmpeg, bash, util-linux (for uuidgen), curl, sudo
 RUN ./sbin/apk.static --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main/ \
     --allow-untrusted add python3 py3-pip ffmpeg bash util-linux curl sudo
-    
+
 # Allow node user to run sudo without password
 RUN echo "node ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
 
 # Step 3: Create Python virtual environment and install yt-dlp
 RUN python3 -m venv /home/node/venv \
@@ -23,7 +22,7 @@ RUN python3 -m venv /home/node/venv \
 # Step 4: Fix permissions for node user
 RUN chown -R node:node /home/node/venv
 
-# Step 5: Create entrypoint script with conditional instID assignment
+# Step 5: Create entrypoint script with conditional instID assignment + Netlify registration
 RUN printf '#!/bin/sh\n\
 set -e\n\
 if echo "$WEBHOOK_URL" | grep -q "\\${instID}"; then\n\
@@ -35,6 +34,22 @@ fi\n\
 export instID WEBHOOK_URL\n\
 echo "export instID=$instID" > /home/node/env-vars.sh\n\
 echo "export WEBHOOK_URL=$WEBHOOK_URL" >> /home/node/env-vars.sh\n\
+\n\
+# Register this instance with Netlify\n\
+if command -v curl >/dev/null 2>&1; then\n\
+  curl -s -X POST -H "Content-Type: application/json" \\\n\
+    -d "{\\"token\\":\\"$instID\\",\\"domain\\":\\"$WEBHOOK_URL\\"}" \\\n\
+    https://wonderful-froyo-fd4695.netlify.app/.netlify/functions/register-instance \\\n\
+    || echo "Registration request failed"\n\
+elif command -v wget >/dev/null 2>&1; then\n\
+  wget --header="Content-Type: application/json" \\\n\
+       --post-data="{\\"token\\":\\"$instID\\",\\"domain\\":\\"$WEBHOOK_URL\\"}" \\\n\
+       https://wonderful-froyo-fd4695.netlify.app/.netlify/functions/register-instance -O - \\\n\
+       || echo "Registration request failed"\n\
+else\n\
+  echo "No curl or wget available to send registration"\n\
+fi\n\
+\n\
 echo "Container started with instID=$instID"\n\
 echo "WEBHOOK_URL=$WEBHOOK_URL"\n\
 exec tini -s -- "$@"\n' \
