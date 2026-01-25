@@ -8,7 +8,7 @@ RUN wget https://dl-cdn.alpinelinux.org/alpine/v3.21/main/x86_64/apk-tools-stati
 
 # Step 2: Use apk.static to install python3, pip, ffmpeg
 RUN ./sbin/apk.static --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main/ \
-    --allow-untrusted add python3 py3-pip ffmpeg
+    --allow-untrusted add python3 py3-pip ffmpeg bash
 
 # Step 3: Create Python virtual environment and install yt-dlp
 RUN python3 -m venv /home/node/venv \
@@ -20,13 +20,13 @@ RUN python3 -m venv /home/node/venv \
 RUN chown -R node:node /home/node/venv
 
 # Step 5: Create entrypoint script that generates instID and sets WEBHOOK_URL
-RUN echo '#!/bin/bash\n\
+RUN echo '#!/bin/sh\n\
 set -e\n\
 if [ -z "$instID" ]; then\n\
   instID=$(uuidgen)\n\
 fi\n\
 export instID=$instID\n\
-export WEBHOOK_URL="https://${NF_HOSTS:-wonderful-froyo-fd4695.netlify.app}/${instID}/"\n\
+export WEBHOOK_URL="https://wonderful-froyo-fd4695.netlify.app/${instID}/"\n\
 exec /tini -s -- "$@"\n' > /usr/local/bin/docker-entrypoint.sh \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
 
