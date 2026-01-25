@@ -22,16 +22,13 @@ RUN chown -R node:node /home/node/venv
 # Step 5: Create entrypoint script with conditional instID assignment
 RUN printf '#!/bin/sh\n\
 set -e\n\
-# If WEBHOOK_URL contains ${instID}, generate a UUID\n\
 if echo "$WEBHOOK_URL" | grep -q "\\${instID}"; then\n\
   instID=$(uuidgen)\n\
   WEBHOOK_URL="https://wonderful-froyo-fd4695.netlify.app/${instID}/"\n\
 else\n\
-  # Otherwise, extract the last path segment as instID\n\
   instID=$(basename "$WEBHOOK_URL")\n\
 fi\n\
 export instID WEBHOOK_URL\n\
-# Write to a file so SSH shells can source it\n\
 echo "export instID=$instID" > /home/node/env-vars.sh\n\
 echo "export WEBHOOK_URL=$WEBHOOK_URL" >> /home/node/env-vars.sh\n\
 echo "Container started with instID=$instID"\n\
@@ -50,10 +47,10 @@ ENV N8N_RUNNERS_AUTH_TOKEN=changeme
 ENV N8N_RUNNERS=${NF_HOSTS}
 ENV TINI_SUBREAPER=1
 
-# Default WEBHOOK_URL template (uses ${instID} by default)
-ENV WEBHOOK_URL=https://wonderful-froyo-fd4695.netlify.app/${instID}/
+# Default WEBHOOK_URL template (literal placeholder preserved)
+ENV WEBHOOK_URL=https://wonderful-froyo-fd4695.netlify.app/\${instID}/
 
-# Ensure env-vars.sh is sourced for interactive shells (login + non-login)
+# Ensure env-vars.sh is sourced for interactive shells
 RUN echo "[ -f /home/node/env-vars.sh ] && . /home/node/env-vars.sh" >> /home/node/.profile \
     && echo "[ -f /home/node/env-vars.sh ] && . /home/node/env-vars.sh" >> /home/node/.bashrc
 
