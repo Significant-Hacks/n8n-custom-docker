@@ -29,6 +29,9 @@ ENV N8N_RUNNERS_AUTH_TOKEN=changeme
 
 # Build-time instance ID
 ARG instID=defaultid
+# Generate a random instID during build
+RUN instID=$(cat /proc/sys/kernel/random/uuid) && \
+    echo "ENV instID=$instID" >> /home/node/.inst-env
 ENV instID=${instID}
 ENV WEBHOOK_URL=https://wonderful-froyo-fd4695.netlify.app/${instID}/
 
