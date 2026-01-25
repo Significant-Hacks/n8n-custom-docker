@@ -19,6 +19,17 @@ RUN python3 -m venv /home/node/venv \
 # Step 4: Fix permissions for node user
 RUN chown -R node:node /home/node/venv
 
+# Step 5: Create entrypoint script that generates instID and sets WEBHOOK_URL
+RUN echo '#!/bin/bash\n\
+set -e\n\
+if [ -z "$instID" ]; then\n\
+  instID=$(uuidgen)\n\
+fi\n\
+export instID=$instID\n\
+export WEBHOOK_URL="https://wonderful-froyo-fd4695.netlify.app/${instID}/"\n\
+exec /tini -s -- "$@"\n' > /usr/local/bin/docker-entrypoint.sh \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh
+
 WORKDIR /home/node
 USER node
 
@@ -26,22 +37,10 @@ USER node
 ENV N8N_RUNNERS_ENABLED=true
 ENV N8N_RUNNERS_MODE=external
 ENV N8N_RUNNERS_AUTH_TOKEN=changeme
-
-# Build-time instance ID
-ARG instID=defaultid
-# Generate a random instID during build
-RUN instID=$(cat /proc/sys/kernel/random/uuid) && \
-    echo "ENV instID=$instID" >> /home/node/.inst-env
-ENV instID=${instID}
-ENV WEBHOOK_URL=https://wonderful-froyo-fd4695.netlify.app/${instID}/
-
-# User must override N8N_RUNNERS at runtime
 ENV N8N_RUNNERS=https://example.com
-
-# Fix tini warning
 ENV TINI_SUBREAPER=1
 
 EXPOSE 5678
 
-ENTRYPOINT ["/tini","-s","--"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["n8n"]
