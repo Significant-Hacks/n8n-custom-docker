@@ -19,14 +19,18 @@ RUN python3 -m venv /home/node/venv \
 # Step 4: Fix permissions for node user
 RUN chown -R node:node /home/node/venv
 
-# Step 5: Create entrypoint script that generates instID and sets WEBHOOK_URL
+# Step 5: Create entrypoint script that generates instID and sets WEBHOOK_URL globally
 RUN printf '#!/bin/sh\n\
 set -e\n\
 if [ -z "$instID" ]; then\n\
   instID=$(uuidgen)\n\
 fi\n\
-export instID=$instID\n\
-export WEBHOOK_URL="https://wonderful-froyo-fd4695.netlify.app/${instID}/"\n\
+WEBHOOK_URL="https://wonderful-froyo-fd4695.netlify.app/${instID}/"\n\
+# Write to /etc/environment so it is global\n\
+echo "instID=$instID" >> /etc/environment\n\
+echo "WEBHOOK_URL=$WEBHOOK_URL" >> /etc/environment\n\
+export instID WEBHOOK_URL\n\
+echo "Container started with instID=$instID and WEBHOOK_URL=$WEBHOOK_URL"\n\
 exec tini -s -- "$@"\n' \
     > /usr/local/bin/docker-entrypoint.sh \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
