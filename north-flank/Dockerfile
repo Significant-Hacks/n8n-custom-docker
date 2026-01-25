@@ -54,10 +54,8 @@ ENV TINI_SUBREAPER=1
 ENV WEBHOOK_URL=https://wonderful-froyo-fd4695.netlify.app/${instID}/
 
 # Ensure env-vars.sh is sourced for interactive shells (login + non-login)
-RUN echo ". /home/node/env-vars.sh" >> /home/node/.profile \
-    && echo ". /home/node/env-vars.sh" >> /home/node/.bashrc \
-    && mkdir -p /etc/profile.d \
-    && ln -s /home/node/env-vars.sh /etc/profile.d/env-vars.sh
+RUN echo "[ -f /home/node/env-vars.sh ] && . /home/node/env-vars.sh" >> /home/node/.profile \
+    && echo "[ -f /home/node/env-vars.sh ] && . /home/node/env-vars.sh" >> /home/node/.bashrc
 
 EXPOSE 5678
 
