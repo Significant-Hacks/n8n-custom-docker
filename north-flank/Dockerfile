@@ -31,6 +31,9 @@ else\n\
   instID=$(basename "$WEBHOOK_URL")\n\
 fi\n\
 export instID WEBHOOK_URL\n\
+# Write to a file so SSH shells can source it\n\
+echo "export instID=$instID" > /home/node/env-vars.sh\n\
+echo "export WEBHOOK_URL=$WEBHOOK_URL" >> /home/node/env-vars.sh\n\
 echo "Container started with instID=$instID"\n\
 echo "WEBHOOK_URL=$WEBHOOK_URL"\n\
 exec tini -s -- "$@"\n' \
@@ -49,6 +52,9 @@ ENV TINI_SUBREAPER=1
 
 # Default WEBHOOK_URL template (uses ${instID} by default)
 ENV WEBHOOK_URL=https://wonderful-froyo-fd4695.netlify.app/${instID}/
+
+# Ensure env-vars.sh is sourced for interactive shells
+RUN echo ". /home/node/env-vars.sh" >> /home/node/.profile
 
 EXPOSE 5678
 
