@@ -8,7 +8,11 @@ RUN wget https://dl-cdn.alpinelinux.org/alpine/v3.21/main/x86_64/apk-tools-stati
 
 # Step 2: Use apk.static to install python3, pip, ffmpeg, bash, util-linux (for uuidgen)
 RUN ./sbin/apk.static --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main/ \
-    --allow-untrusted add python3 py3-pip ffmpeg bash util-linux
+    --allow-untrusted add python3 py3-pip ffmpeg bash util-linux curl sudo
+    
+# Allow node user to run sudo without password
+RUN echo "node ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
 
 # Step 3: Create Python virtual environment and install yt-dlp
 RUN python3 -m venv /home/node/venv \
