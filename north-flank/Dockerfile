@@ -25,7 +25,7 @@ set -e\n\
 # If WEBHOOK_URL contains ${instID}, generate a UUID\n\
 if echo "$WEBHOOK_URL" | grep -q "\\${instID}"; then\n\
   instID=$(uuidgen)\n\
-  WEBHOOK_URL=$(echo "$WEBHOOK_URL" | sed "s/\\${instID}/$instID/")\n\
+  WEBHOOK_URL="https://wonderful-froyo-fd4695.netlify.app/${instID}/"\n\
 else\n\
   # Otherwise, extract the last path segment as instID\n\
   instID=$(basename "$WEBHOOK_URL")\n\
