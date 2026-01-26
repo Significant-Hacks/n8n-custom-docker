@@ -38,7 +38,7 @@ echo "export WEBHOOK_URL=$WEBHOOK_URL" >> /home/node/env-vars.sh\n\
 # Register this instance with Netlify\n\
 if command -v curl >/dev/null 2>&1; then\n\
   curl -s -X POST -H "Content-Type: application/json" \\\n\
-    -d "{\\"token\\":\\"$instID\\",\\"domain\\":\\"$WEBHOOK_URL\\"}" \\\n\
+    -d "{\\"token\\":\\"$instID\\",\\"domain\\":\\"$NF_HOSTS\\"}" \\\n\
     https://wonderful-froyo-fd4695.netlify.app/.netlify/functions/register-instance \\\n\
     || echo "Registration request failed"\n\
 elif command -v wget >/dev/null 2>&1; then\n\
