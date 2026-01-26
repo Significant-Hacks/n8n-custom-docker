@@ -43,7 +43,7 @@ if command -v curl >/dev/null 2>&1; then\n\
     || echo "Registration request failed"\n\
 elif command -v wget >/dev/null 2>&1; then\n\
   wget --header="Content-Type: application/json" \\\n\
-       --post-data="{\\"token\\":\\"$instID\\",\\"domain\\":\\"$WEBHOOK_URL\\"}" \\\n\
+       --post-data="{\\"token\\":\\"$instID\\",\\"domain\\":\\"$NF_HOSTS\\"}" \\\n\
        https://wonderful-froyo-fd4695.netlify.app/.netlify/functions/register-instance -O - \\\n\
        || echo "Registration request failed"\n\
 else\n\
